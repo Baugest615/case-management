@@ -1,13 +1,13 @@
-// src/App.jsx - 完整功能版本
+// src/App.jsx - 修復 Export 問題
 import React, { useState } from 'react';
 import Button from './components/ui/Button';
 import Card from './components/ui/Card';
-import Input from './components/ui/Input';
 import CaseStats from './components/case/CaseStats';
 import CaseForm from './components/case/CaseForm';
 import { useCases } from './hooks/useCases';
 import { useSearch } from './hooks/useSearch';
 import { STATUS_COLORS } from './utils/constants';
+import './App.css'; // 引入外部 CSS
 
 function App() {
   const [showManagement, setShowManagement] = useState(false);
@@ -19,11 +19,13 @@ function App() {
     cases, 
     loading, 
     error, 
+    connectionStatus,
     addCase, 
     updateCase, 
     deleteCase, 
     getStats,
-    clearError 
+    clearError,
+    refreshCases
   } = useCases();
 
   const {
@@ -35,13 +37,17 @@ function App() {
   } = useSearch(cases);
 
   // 處理新增案件
-  const handleAddCase = (caseData) => {
-    const result = addCase(caseData);
-    if (result.success) {
-      setShowForm(false);
-      alert('案件新增成功！');
-    } else {
-      alert(result.error);
+  const handleAddCase = async (caseData) => {
+    try {
+      const result = await addCase(caseData);
+      if (result.success) {
+        setShowForm(false);
+        alert('✅ 案件新增成功！');
+      } else {
+        alert('❌ ' + result.error);
+      }
+    } catch (error) {
+      alert('❌ 新增失敗：' + error.message);
     }
   };
 
@@ -52,25 +58,33 @@ function App() {
   };
 
   // 處理更新案件
-  const handleUpdateCase = (caseData) => {
-    const result = updateCase(editingCase.id, caseData);
-    if (result.success) {
-      setShowForm(false);
-      setEditingCase(null);
-      alert('案件更新成功！');
-    } else {
-      alert(result.error);
+  const handleUpdateCase = async (caseData) => {
+    try {
+      const result = await updateCase(editingCase.id, caseData);
+      if (result.success) {
+        setShowForm(false);
+        setEditingCase(null);
+        alert('✅ 案件更新成功！');
+      } else {
+        alert('❌ ' + result.error);
+      }
+    } catch (error) {
+      alert('❌ 更新失敗：' + error.message);
     }
   };
 
   // 處理刪除案件
-  const handleDeleteCase = (id) => {
-    if (window.confirm('確定要刪除這個案件嗎？')) {
-      const result = deleteCase(id);
-      if (result.success) {
-        alert('案件已刪除');
-      } else {
-        alert(result.error);
+  const handleDeleteCase = async (id) => {
+    if (window.confirm('⚠️ 確定要刪除這個案件嗎？')) {
+      try {
+        const result = await deleteCase(id);
+        if (result.success) {
+          alert('✅ 案件已刪除');
+        } else {
+          alert('❌ ' + result.error);
+        }
+      } catch (error) {
+        alert('❌ 刪除失敗：' + error.message);
       }
     }
   };
@@ -81,339 +95,338 @@ function App() {
     setEditingCase(null);
   };
 
+  // 重置篩選
+  const resetFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('全部');
+  };
+
+  // 檢查是否有活動篩選
+  const hasActiveFilters = searchTerm !== '' || statusFilter !== '全部';
+
   // 計算統計資料
   const stats = getStats(filteredCases);
 
   return (
-    <div style={{
-      maxWidth: '1400px',
-      margin: '0 auto',
-      padding: '24px',
-      backgroundColor: '#f9fafb',
-      minHeight: '100vh',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif'
-    }}>
+    <div className="app-container">
+      
       {/* 系統標題區域 */}
-      <Card padding="large">
-        <div style={{ textAlign: 'center' }}>
-          <h1 style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            marginBottom: '20px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>
-            📋 案件管理系統 - 完整版
-          </h1>
+      <div className="title-section">
+        <Card padding="large">
+          <div className="title-content">
+            <h1 className="main-title">
+              📋 案件管理系統
+            </h1>
 
-          {/* 系統狀態 */}
-          <div style={{
-            backgroundColor: '#f0fdf4',
-            border: '1px solid #16a34a',
-            borderRadius: '8px',
-            padding: '20px',
-            marginBottom: '20px'
-          }}>
-            <h3 style={{
-              color: '#15803d',
-              margin: '0 0 12px 0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
-            }}>
-              ✅ 系統功能狀態
-            </h3>
-            
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-              gap: '8px',
-              fontSize: '14px'
-            }}>
-              <p>✅ 案件增刪改查</p>
-              <p>✅ 搜尋與篩選</p>
-              <p>✅ 統計分析</p>
-              <p>✅ 標籤管理</p>
-              <p>✅ 響應式設計</p>
-              <p>📅 {new Date().toLocaleString('zh-TW')}</p>
+            {/* 連線狀態顯示 */}
+            <div className={`connection-status ${connectionStatus === '連線成功' ? 'success' : 
+                            connectionStatus === '連線失敗' ? 'error' : 'loading'}`}>
+              <span>
+                {connectionStatus === '連線成功' ? '✅' : 
+                 connectionStatus === '連線失敗' ? '❌' : '⏳'} 
+                資料庫狀態: {connectionStatus}
+              </span>
+              
+              {connectionStatus === '連線失敗' && (
+                <div className="reconnect-section">
+                  <Button
+                    variant="outline"
+                    size="small"
+                    onClick={refreshCases}
+                    disabled={loading}
+                  >
+                    🔄 重新連線
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* 主要操作按鈕 */}
+            <div className="main-buttons">
+              <Button
+                variant="primary"
+                size="large"
+                onClick={() => setShowManagement(!showManagement)}
+                className="main-button"
+              >
+                {showManagement ? '📥 隱藏管理' : '📋 案件管理'}
+              </Button>
+
+              {showManagement && (
+                <Button
+                  variant="success"
+                  size="large"
+                  onClick={() => setShowForm(true)}
+                  disabled={loading}
+                  className="add-button"
+                >
+                  ➕ 新增案件
+                </Button>
+              )}
             </div>
           </div>
-
-          {/* 主要操作按鈕 */}
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            justifyContent: 'center',
-            flexWrap: 'wrap'
-          }}>
-            <Button
-              variant="primary"
-              size="large"
-              onClick={() => setShowManagement(!showManagement)}
-            >
-              {showManagement ? '📥 隱藏管理界面' : '📋 顯示管理界面'}
-            </Button>
-
-            {showManagement && (
-              <Button
-                variant="success"
-                size="large"
-                onClick={() => setShowForm(true)}
-              >
-                ➕ 新增案件
-              </Button>
-            )}
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
 
       {/* 錯誤提示 */}
       {error && (
-        <Card padding="normal" style={{ marginTop: '24px' }}>
-          <div style={{
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
-            padding: '12px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <span style={{ color: '#dc2626' }}>⚠️ {error}</span>
-            <Button
-              variant="outline"
-              size="small"
-              onClick={clearError}
-            >
-              關閉
-            </Button>
-          </div>
-        </Card>
+        <div className="error-section">
+          <Card padding="normal">
+            <div className="error-message">
+              <div className="error-content">
+                <div className="error-title">
+                  ⚠️ 系統錯誤
+                </div>
+                <div className="error-text">
+                  {error}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="small"
+                onClick={clearError}
+              >
+                ✕
+              </Button>
+            </div>
+          </Card>
+        </div>
       )}
 
       {/* 案件管理區域 */}
       {showManagement && (
-        <div style={{ display: 'grid', gap: '24px', marginTop: '24px' }}>
+        <div className="management-section">
+          
           {/* 統計區域 */}
           <CaseStats stats={stats} />
 
           {/* 搜尋和篩選 */}
           <Card title="🔍 搜尋與篩選" padding="normal">
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-              <Input
-                placeholder="搜尋案件標題、內容、廠商、標籤..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                icon={<span>🔍</span>}
-              />
+            <div className="search-container">
+              {/* 搜尋輸入框 */}
+              <div className="search-input-container">
+                <input
+                  type="text"
+                  placeholder="搜尋案件標題、內容、廠商..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+                <div className="search-icon">
+                  🔍
+                </div>
+              </div>
               
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                style={{
-                  padding: '10px 12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: 'white',
-                  minWidth: '140px'
-                }}
-              >
-                <option value="全部">全部狀態</option>
-                <option value="進行中">進行中</option>
-                <option value="已完成">已完成</option>
-                <option value="待確認">待確認</option>
-                <option value="已取消">已取消</option>
-              </select>
+              {/* 狀態篩選下拉選單 */}
+              <div className="filter-container">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="全部">全部狀態</option>
+                  <option value="進行中">進行中</option>
+                  <option value="已完成">已完成</option>
+                  <option value="待確認">待確認</option>
+                  <option value="已取消">已取消</option>
+                </select>
+              </div>
             </div>
             
-            <div style={{ fontSize: '14px', color: '#6b7280' }}>
-              🔍 找到 <strong>{filteredCases.length}</strong> 個案件
-              {searchTerm && ` (搜尋: "${searchTerm}")`}
-              {statusFilter !== '全部' && ` (狀態: ${statusFilter})`}
+            {/* 搜尋結果資訊 */}
+            <div className="search-results">
+              <div>
+                🔍 找到 <strong>{filteredCases.length}</strong> 個案件
+                {searchTerm && ` (搜尋: "${searchTerm}")`}
+                {statusFilter !== '全部' && ` (狀態: ${statusFilter})`}
+              </div>
+              
+              {hasActiveFilters && (
+                <button
+                  onClick={resetFilters}
+                  className="reset-filters-btn"
+                >
+                  🔄 重置篩選
+                </button>
+              )}
             </div>
           </Card>
 
           {/* 案件列表 */}
           <Card padding="normal">
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '20px'
-            }}>
-              <h2 style={{
-                fontSize: '20px',
-                fontWeight: '600',
-                color: '#111827',
-                margin: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
+            <div className="case-list-header">
+              <h2 className="case-list-title">
                 📝 案件列表
-                <span style={{
-                  fontSize: '14px',
-                  fontWeight: 'normal',
-                  color: '#6b7280',
-                  backgroundColor: '#f3f4f6',
-                  padding: '2px 8px',
-                  borderRadius: '12px'
-                }}>
+                <span className="case-count">
                   {filteredCases.length} 個案件
                 </span>
               </h2>
             </div>
 
             {filteredCases.length > 0 ? (
-              <div style={{ display: 'grid', gap: '16px' }}>
+              <div className="case-list">
                 {filteredCases.map((case_) => {
                   const statusColor = STATUS_COLORS[case_.status] || STATUS_COLORS['進行中'];
+                  const isPaid = case_.paymentMethod !== '未付款' && case_.paymentDate;
                   
                   return (
                     <Card 
                       key={case_.id}
                       hover
                       padding="large"
+                      className="case-card"
                     >
-                      {/* 標題和狀態 */}
-                      <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'flex-start',
-                        marginBottom: '16px'
-                      }}>
-                        <div style={{ flex: 1, marginRight: '16px' }}>
-                          <h3 style={{
-                            fontSize: '18px',
-                            fontWeight: '600',
-                            color: '#111827',
-                            margin: '0 0 8px 0',
-                            lineHeight: '1.4'
-                          }}>
+                      {/* 標題區域 */}
+                      <div className="case-header">
+                        <div className="case-title-section">
+                          <div className="case-badges">
+                            <span className="category-badge">
+                              {case_.category}
+                            </span>
+                            {case_.client && (
+                              <span className="client-badge">
+                                👤 {case_.client}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <h3 className="case-title">
                             {case_.title}
                           </h3>
-                          <p style={{
-                            color: '#6b7280',
-                            margin: '0',
-                            fontSize: '14px',
-                            lineHeight: '1.5'
-                          }}>
-                            {case_.content}
-                          </p>
+                          
+                          {case_.remarks && (
+                            <p className="case-remarks">
+                              {case_.remarks}
+                            </p>
+                          )}
                         </div>
 
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          flexShrink: 0
-                        }}>
-                          <span style={{
-                            backgroundColor: statusColor.bg,
-                            color: statusColor.text,
-                            padding: '6px 12px',
-                            borderRadius: '20px',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            whiteSpace: 'nowrap'
-                          }}>
+                        <div className="case-status-section">
+                          <span 
+                            className="status-badge"
+                            style={{
+                              backgroundColor: statusColor.bg,
+                              color: statusColor.text
+                            }}
+                          >
                             {case_.status}
+                          </span>
+                          
+                          {/* 付款狀態指示器 */}
+                          <span className={`payment-badge ${isPaid ? 'paid' : 'unpaid'}`}>
+                            {isPaid ? '✅ 已付款' : '⏰ 未付款'}
                           </span>
                         </div>
                       </div>
 
-                      {/* 詳細資訊 */}
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                        gap: '12px',
-                        fontSize: '14px',
-                        marginBottom: '16px',
-                        color: '#6b7280'
-                      }}>
-                        {case_.category && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span>🏷️</span>
-                            <span>{case_.category}</span>
+                      {/* 詳細資訊區域 */}
+                      <div className="case-details">
+                        {/* 進行日期 */}
+                        {(case_.startDate || case_.endDate) && (
+                          <div className="detail-item">
+                            <span className="detail-icon">📅</span>
+                            <div className="detail-content">
+                              <div className="detail-label">進行日期</div>
+                              <div className="detail-value">
+                                {case_.startDate && new Date(case_.startDate).toLocaleDateString('zh-TW')}
+                                {case_.startDate && case_.endDate && ' ~ '}
+                                {case_.endDate && new Date(case_.endDate).toLocaleDateString('zh-TW')}
+                              </div>
+                            </div>
                           </div>
                         )}
                         
+                        {/* 合作廠商 */}
                         {case_.vendor && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span>🏢</span>
-                            <span>{case_.vendor}</span>
+                          <div className="detail-item">
+                            <span className="detail-icon">🏢</span>
+                            <div className="detail-content">
+                              <div className="detail-label">合作廠商</div>
+                              <div className="detail-value">{case_.vendor}</div>
+                            </div>
                           </div>
                         )}
-                        
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span>📅</span>
-                          <span>{new Date(case_.created_at).toLocaleDateString('zh-TW')}</span>
+
+                        {/* 開票/訂房時間 */}
+                        {case_.bookingDate && (
+                          <div className="detail-item">
+                            <span className="detail-icon">🎫</span>
+                            <div className="detail-content">
+                              <div className="detail-label">開票/訂房</div>
+                              <div className="detail-value">
+                                {new Date(case_.bookingDate).toLocaleDateString('zh-TW')}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 付款方式 */}
+                        <div className="detail-item">
+                          <span className="detail-icon">💳</span>
+                          <div className="detail-content">
+                            <div className="detail-label">付款方式</div>
+                            <div className="detail-value">{case_.paymentMethod}</div>
+                          </div>
                         </div>
 
-                        {case_.paymentMethod && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span>💳</span>
-                            <span>{case_.paymentMethod}</span>
+                        {/* 付款日期 */}
+                        {case_.paymentDate && (
+                          <div className="detail-item">
+                            <span className="detail-icon">📆</span>
+                            <div className="detail-content">
+                              <div className="detail-label">付款日期</div>
+                              <div className="detail-value">
+                                {new Date(case_.paymentDate).toLocaleDateString('zh-TW')}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 電代 (僅機票顯示) */}
+                        {case_.category === '機票' && case_.airlineCode && (
+                          <div className="detail-item">
+                            <span className="detail-icon">✈️</span>
+                            <div className="detail-content">
+                              <div className="detail-label">電代</div>
+                              <div className="detail-value">{case_.airlineCode}</div>
+                            </div>
                           </div>
                         )}
                       </div>
 
-                      {/* 金額 */}
-                      {case_.amount > 0 && (
-                        <div style={{
-                          fontSize: '18px',
-                          fontWeight: '700',
-                          color: '#16a34a',
-                          marginBottom: '16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}>
-                          💰 NT$ {case_.amount.toLocaleString()}
-                        </div>
-                      )}
-
-                      {/* 標籤 */}
-                      {case_.tags && case_.tags.length > 0 && (
-                        <div style={{
-                          display: 'flex',
-                          flexWrap: 'wrap',
-                          gap: '6px',
-                          marginBottom: '16px'
-                        }}>
-                          {case_.tags.map((tag, index) => (
-                            <span
-                              key={index}
-                              style={{
-                                backgroundColor: '#f3f4f6',
-                                color: '#374151',
-                                padding: '4px 10px',
-                                borderRadius: '12px',
-                                fontSize: '12px',
-                                fontWeight: '500',
-                                border: '1px solid #e5e7eb'
-                              }}
-                            >
-                              {tag}
-                            </span>
-                          ))}
+                      {/* 金額區域 */}
+                      {(case_.amount > 0 || case_.finalAmount > 0) && (
+                        <div className="amount-section">
+                          <div className="amount-container">
+                            <div className="amount-info">
+                              {case_.amount !== case_.finalAmount && case_.hasCreditCardFee && (
+                                <div className="original-amount">
+                                  原金額: NT$ {parseInt(case_.amount || 0).toLocaleString()}
+                                </div>
+                              )}
+                              <div className="final-amount">
+                                💰 NT$ {parseInt(case_.finalAmount || case_.amount || 0).toLocaleString()}
+                                {case_.hasCreditCardFee && (
+                                  <span className="fee-badge">
+                                    含手續費
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="payment-status">
+                              <div className={`payment-indicator ${isPaid ? 'paid' : 'unpaid'}`}>
+                                {isPaid ? '✅ 已收款' : '⏰ 待收款'}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       )}
 
                       {/* 操作按鈕 */}
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        gap: '8px',
-                        paddingTop: '16px',
-                        borderTop: '1px solid #f3f4f6'
-                      }}>
+                      <div className="case-actions">
                         <Button
-                          variant="outline"
+                          variant="secondary"
                           size="small"
                           onClick={() => handleEditCase(case_)}
                         >
@@ -429,42 +442,29 @@ function App() {
                         </Button>
                       </div>
 
-                      {/* 更新時間（如果有） */}
-                      {case_.updated_at && (
-                        <div style={{
-                          fontSize: '11px',
-                          color: '#9ca3af',
-                          textAlign: 'right',
-                          marginTop: '8px'
-                        }}>
-                          最後更新: {new Date(case_.updated_at).toLocaleString('zh-TW')}
-                        </div>
-                      )}
+                      {/* 建立時間 */}
+                      <div className="case-timestamps">
+                        建立時間: {new Date(case_.created_at).toLocaleString('zh-TW')}
+                        {case_.updated_at && (
+                          <span>
+                            | 更新: {new Date(case_.updated_at).toLocaleString('zh-TW')}
+                          </span>
+                        )}
+                      </div>
                     </Card>
                   );
                 })}
               </div>
             ) : (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '60px 20px',
-                color: '#6b7280'
-              }}>
-                <div style={{ fontSize: '64px', marginBottom: '16px' }}>
+              // 空狀態
+              <div className="empty-state">
+                <div className="empty-icon">
                   {searchTerm || statusFilter !== '全部' ? '🔍' : '📋'}
                 </div>
-                <h3 style={{
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  color: '#374151',
-                  marginBottom: '8px'
-                }}>
+                <h3 className="empty-title">
                   {searchTerm || statusFilter !== '全部' ? '沒有找到符合條件的案件' : '還沒有任何案件'}
                 </h3>
-                <p style={{
-                  fontSize: '14px',
-                  marginBottom: '16px'
-                }}>
+                <p className="empty-description">
                   {searchTerm || statusFilter !== '全部' 
                     ? '試試調整搜尋關鍵字或篩選條件' 
                     : '點擊上方的「新增案件」按鈕來建立第一個案件'
@@ -483,8 +483,21 @@ function App() {
         onSubmit={editingCase ? handleUpdateCase : handleAddCase}
         editingCase={editingCase}
       />
+
+      {/* 載入遮罩 */}
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-content">
+            <div className="loading-spinner" />
+            <div className="loading-text">
+              處理中...
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
+// 確保有正確的 default export
 export default App;

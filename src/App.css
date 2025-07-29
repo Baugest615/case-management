@@ -1,4 +1,4 @@
-/* src/App.css */
+/* src/App.css - 完整的樣式文件 */
 
 /* Reset and base styles */
 * {
@@ -16,7 +16,563 @@ body {
   background-color: #f9fafb;
 }
 
-/* 使用 Tailwind-like 樣式類別 */
+/* App Container */
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+
+/* Title Section */
+.title-section {
+  margin-bottom: 24px;
+}
+
+.title-content {
+  text-align: center;
+}
+
+.main-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Connection Status */
+.connection-status {
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.connection-status.success {
+  background-color: #f0fdf4;
+  border: 1px solid #16a34a;
+  color: #15803d;
+}
+
+.connection-status.error {
+  background-color: #fef2f2;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+}
+
+.connection-status.loading {
+  background-color: #fef3c7;
+  border: 1px solid #d97706;
+  color: #d97706;
+}
+
+.reconnect-section {
+  margin-top: 8px;
+}
+
+/* Main Buttons */
+.main-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.main-button {
+  min-width: 160px;
+}
+
+.add-button {
+  min-width: 120px;
+}
+
+/* Error Section */
+.error-section {
+  margin-bottom: 24px;
+}
+
+.error-message {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.error-content {
+  flex: 1;
+}
+
+.error-title {
+  color: #dc2626;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.error-text {
+  color: #7f1d1d;
+  font-size: 14px;
+}
+
+/* Management Section */
+.management-section {
+  display: grid;
+  gap: 24px;
+}
+
+/* Search Section */
+.search-container {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.search-input-container {
+  position: relative;
+  min-width: 0;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.filter-container {
+  min-width: 160px;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+/* Search Results */
+.search-results {
+  font-size: 14px;
+  color: #6b7280;
+  padding: 12px 16px;
+  background-color: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.search-results strong {
+  color: #1e40af;
+}
+
+.reset-filters-btn {
+  background-color: #ffffff;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-filters-btn:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Case List */
+.case-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.case-list-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.case-count {
+  font-size: 14px;
+  font-weight: normal;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.case-list {
+  display: grid;
+  gap: 16px;
+}
+
+/* Case Card */
+.case-card {
+  transition: all 0.2s ease;
+}
+
+/* Case Header */
+.case-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.case-title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.case-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.category-badge {
+  font-size: 12px;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.client-badge {
+  font-size: 12px;
+  background-color: #dbeafe;
+  color: #1e40af;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.case-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.case-remarks {
+  color: #6b7280;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.case-status-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.payment-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.payment-badge.paid {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.payment-badge.unpaid {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+/* Case Details */
+.case-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b7280;
+}
+
+.detail-icon {
+  font-size: 16px;
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.detail-value {
+  color: #374151;
+  font-weight: 500;
+}
+
+/* Amount Section */
+.amount-section {
+  padding: 16px;
+  background-color: #f0fdf4;
+  border-radius: 8px;
+  border: 1px solid rgba(22, 163, 74, 0.2);
+  margin-bottom: 16px;
+}
+
+.amount-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.amount-info {
+  flex: 1;
+}
+
+.original-amount {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.final-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fee-badge {
+  font-size: 10px;
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.payment-status {
+  text-align: right;
+}
+
+.payment-indicator {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.payment-indicator.paid {
+  color: #15803d;
+}
+
+.payment-indicator.unpaid {
+  color: #dc2626;
+}
+
+/* Case Actions */
+.case-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+/* Case Timestamps */
+.case-timestamps {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: right;
+  margin-top: 8px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.empty-description {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-content {
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 16px;
+  }
+
+  .main-title {
+    font-size: 24px;
+  }
+
+  .search-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .case-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .case-status-section {
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
+    justify-content: flex-start;
+  }
+
+  .case-details {
+    grid-template-columns: 1fr;
+  }
+
+  .amount-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .case-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* 使用 Tailwind-like 工具類別 */
 .max-w-7xl {
   max-width: 80rem;
 }
@@ -244,10 +800,6 @@ body {
   background-color: #15803d;
 }
 
-.bg-gray-50 {
-  background-color: #f9fafb;
-}
-
 .bg-green-50 {
   background-color: #f0fdf4;
 }
@@ -367,17 +919,6 @@ button:active {
   transform: translateY(0);
 }
 
-/* 載入動畫 */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
 /* 自定義滾動條 */
 ::-webkit-scrollbar {
   width: 8px;
@@ -394,22 +935,6 @@ button:active {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
-}
-
-/* 響應式設計 */
-@media (max-width: 768px) {
-  .max-w-7xl {
-    max-width: 100%;
-  }
-  
-  .p-6 {
-    padding: 1rem;
-  }
-  
-  .text-3xl {
-    font-size: 1.5rem;
-    line-height: 2rem;
-  }
 }
 
 /* 聚焦效果 */
