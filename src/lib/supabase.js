@@ -1,28 +1,24 @@
-// src/lib/supabase.js
+// src/lib/supabase.js - 修正版本
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// 檢查環境變數
-if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing Supabase environment variables');
-  console.log('VITE_SUPABASE_URL:', !!supabaseUrl);
-  console.log('VITE_SUPABASE_ANON_KEY:', !!supabaseKey);
-}
-
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
-// 測試連線
+// 修正測試連線函數
 export const testConnection = async () => {
   try {
+    // 修正：使用簡單的 select 查詢而不是 count
     const { data, error } = await supabase
       .from('cases')
-      .select('count(*)', { count: 'exact' });
+      .select('id')
+      .limit(1);
     
     if (error) throw error;
     return { success: true, message: '資料庫連線成功' };
   } catch (error) {
+    console.error('Connection test failed:', error);
     return { success: false, message: error.message };
   }
 };

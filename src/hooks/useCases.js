@@ -14,34 +14,22 @@ export const useCases = () => {
   }, []);
 
   const initializeData = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // 測試連線
-      setConnectionStatus('測試連線中...');
-      const connectionTest = await testConnection();
-      
-      if (!connectionTest.success) {
-        throw new Error(`連線失敗: ${connectionTest.message}`);
-      }
-      
-      setConnectionStatus('連線成功');
-      
-      // 載入資料
-      await fetchCases();
-      
-    } catch (err) {
-      console.error('初始化錯誤:', err);
-      setError(err.message);
-      setConnectionStatus('連線失敗');
-      
-      // 如果連線失敗，載入模擬資料作為備案
-      loadFallbackData();
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  setError(null);
+  
+  try {
+    setConnectionStatus('載入資料中...');
+    await fetchCases();
+    setConnectionStatus('連線成功');
+  } catch (err) {
+    console.error('初始化錯誤:', err);
+    setError(err.message);
+    setConnectionStatus('連線失敗');
+    loadFallbackData();
+  } finally {
+    setLoading(false);
+  }
+};
 
   // 載入模擬資料（備案）
   const loadFallbackData = () => {
